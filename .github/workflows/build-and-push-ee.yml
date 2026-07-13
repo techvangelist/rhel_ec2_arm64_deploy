@@ -65,6 +65,13 @@ jobs:
         run: |
           pip install ansible-builder
 
+      - name: Log in to Red Hat Registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_REGISTRY_USERNAME }}
+          password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
+
       - name: Log in to Quay.io
         uses: redhat-actions/podman-login@v1
         with:
