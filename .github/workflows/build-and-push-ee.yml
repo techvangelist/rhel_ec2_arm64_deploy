@@ -66,18 +66,12 @@ jobs:
           pip install ansible-builder
 
       - name: Log in to Red Hat Registry
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: registry.redhat.io
-          username: ${{ secrets.REDHAT_REGISTRY_USERNAME }}
-          password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
+        run: |
+          echo "${{ secrets.REDHAT_REGISTRY_PASSWORD }}" | podman login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USERNAME }}" --password-stdin
 
       - name: Log in to Quay.io
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          echo "${{ secrets.QUAY_TOKEN }}" | podman login quay.io -u "${{ secrets.QUAY_USERNAME }}" --password-stdin
 
       - name: Determine image tag
         id: tag
