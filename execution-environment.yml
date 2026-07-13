@@ -18,7 +18,7 @@ additional_build_steps:
   prepend_final: |
     RUN mkdir -p /runner/project
     WORKDIR /runner/project
-    COPY --from=builder /build/_build/configs/ansible.cfg /etc/ansible/ansible.cfg
+    COPY --from=builder /build/configs/ansible.cfg /etc/ansible/ansible.cfg
 
 options:
   package_manager_path: /usr/bin/microdnf
