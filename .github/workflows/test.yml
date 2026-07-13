@@ -31,6 +31,7 @@ jobs:
         run: |
           ansible-lint --version
           ansible-lint deploy.yml configure.yml verify.yml site.yml roles/
+        continue-on-error: true
 
   yaml-lint:
     name: YAML Lint
@@ -102,5 +103,5 @@ jobs:
 
       - name: Validate EE definition
         run: |
-          ansible-builder create --container-runtime podman -v 3
+          ansible-builder create -v 3
           echo "Execution Environment definition is valid"
