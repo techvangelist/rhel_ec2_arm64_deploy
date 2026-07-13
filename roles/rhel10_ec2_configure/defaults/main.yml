@@ -1,0 +1,23 @@
+---
+# Admin user configuration
+admin_user: asnell
+admin_comment: "Abraham Snell"
+admin_shell: /bin/bash
+
+# Package installation
+baseline_packages:
+  - git
+  - tmux
+  - sysstat
+
+# System services
+enable_sysstat: true
+
+# bashrc.d configuration files
+bashrc_d_files:
+  - 02-aliases
+  - 03-bash_history
+  - 05-shell_env
+
+# SSH key management
+copy_ssh_keys_from_user: ec2-user

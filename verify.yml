@@ -1,0 +1,7 @@
+---
+- name: Verify RHEL 10 ARM64 EC2 Instance Configuration
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - role: rhel10_ec2_verify

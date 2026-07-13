@@ -1,0 +1,6 @@
+# Set shell editor environment
+
+#export HISTSIZE=90000
+#export HISTFILESIZE=100000
+export EDITOR=/usr/bin/vim
+set -o vi

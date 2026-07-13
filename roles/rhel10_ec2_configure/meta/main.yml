@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Abraham Snell
+  description: Configure RHEL 10 ARM64 EC2 instances with user accounts and baseline tools
+  company: Red Hat
+  license: Apache-2.0
+  min_ansible_version: "2.15"
+  platforms:
+    - name: EL
+      versions:
+        - "10"
+  galaxy_tags:
+    - rhel
+    - rhel10
+    - configuration
+    - users
+
+dependencies: []

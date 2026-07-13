@@ -1,0 +1,23 @@
+---
+- name: Complete RHEL 10 ARM64 EC2 Deployment and Configuration
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: rhel10_ec2_deploy
+
+- name: Configure newly deployed instance
+  hosts: rhel10_instances
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: rhel10_ec2_configure
+
+- name: Verify instance configuration
+  hosts: rhel10_instances
+  gather_facts: true
+
+  roles:
+    - role: rhel10_ec2_verify

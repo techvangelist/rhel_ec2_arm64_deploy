@@ -1,0 +1,27 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform-27/ee-minimal-rhel9:latest
+
+dependencies:
+  galaxy: requirements.yml
+  python: requirements.txt
+  system: bindep.txt
+
+additional_build_files:
+  - src: ansible.cfg
+    dest: configs
+
+additional_build_steps:
+  prepend_galaxy:
+    - RUN ansible-galaxy collection install -r requirements.yml --force
+
+  prepend_final: |
+    RUN mkdir -p /runner/project
+    WORKDIR /runner/project
+    COPY --from=builder /configs/ansible.cfg /etc/ansible/ansible.cfg
+
+options:
+  package_manager_path: /usr/bin/microdnf

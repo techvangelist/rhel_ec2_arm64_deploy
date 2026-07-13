@@ -1,0 +1,23 @@
+---
+- name: Deploy RHEL 10 ARM64 EC2 Instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: rhel10_ec2_deploy
+
+  post_tasks:
+    - name: Display deployment summary
+      ansible.builtin.debug:
+        msg: |
+          ========================================
+          EC2 Instance Deployed Successfully
+          ========================================
+          Instance ID: {{ deployed_instance_id }}
+          Public IP: {{ deployed_instance_ip }}
+          Private IP: {{ deployed_instance_private_ip }}
+
+          Next steps:
+          1. Configure the instance: ansible-playbook -i {{ deployed_instance_ip }}, configure.yml
+          2. Verify configuration: ansible-playbook -i {{ deployed_instance_ip }}, verify.yml

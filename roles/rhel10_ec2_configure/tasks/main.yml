@@ -1,0 +1,100 @@
+---
+- name: Ensure OS is Red Hat Enterprise Linux 10
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == "RedHat"
+      - ansible_facts['distribution_major_version'] == "10"
+    fail_msg: "Target system is not RHEL 10! Found: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+
+- name: Run system updates via AWS RHUI repositories
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Install baseline administrator utilities
+  ansible.builtin.dnf:
+    name: "{{ baseline_packages }}"
+    state: present
+
+- name: Enable and start system performance logging (sysstat)
+  ansible.builtin.systemd:
+    name: sysstat
+    state: started
+    enabled: true
+  when: enable_sysstat
+
+- name: Create admin user {{ admin_user }}
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    comment: "{{ admin_comment }}"
+    shell: "{{ admin_shell }}"
+    create_home: true
+    state: present
+
+- name: Add {{ admin_user }} to wheel group for sudo access
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups: wheel
+    append: true
+
+- name: Configure passwordless sudo for {{ admin_user }}
+  ansible.builtin.lineinfile:
+    path: "/etc/sudoers.d/{{ admin_user }}"
+    line: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
+    create: true
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
+
+- name: Create .bashrc.d directory for {{ admin_user }}
+  ansible.builtin.file:
+    path: "/home/{{ admin_user }}/.bashrc.d"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0755'
+
+- name: Copy bashrc.d configuration files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/home/{{ admin_user }}/.bashrc.d/{{ item }}"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0644'
+  loop: "{{ bashrc_d_files }}"
+
+- name: Ensure .bashrc sources .bashrc.d files
+  ansible.builtin.blockinfile:
+    path: "/home/{{ admin_user }}/.bashrc"
+    block: |
+      # Source .bashrc.d files
+      if [ -d ~/.bashrc.d ]; then
+          for rc in ~/.bashrc.d/*; do
+              if [ -f "$rc" ]; then
+                  . "$rc"
+              fi
+          done
+      fi
+      unset rc
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - bashrc.d"
+    create: true
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0644'
+
+- name: Create .ssh directory for {{ admin_user }}
+  ansible.builtin.file:
+    path: "/home/{{ admin_user }}/.ssh"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0700'
+
+- name: Copy SSH authorized_keys from {{ copy_ssh_keys_from_user }} to {{ admin_user }}
+  ansible.builtin.copy:
+    src: "/home/{{ copy_ssh_keys_from_user }}/.ssh/authorized_keys"
+    dest: "/home/{{ admin_user }}/.ssh/authorized_keys"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0600'
+    remote_src: true

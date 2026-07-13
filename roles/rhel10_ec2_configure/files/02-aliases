@@ -1,0 +1,18 @@
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias la='ls -la --color=auto'
+alias lh='ls -lh --color=auto'
+alias lha='ls -lha --color=auto'
+alias lrt='ls -lhtr --color=auto'
+alias duck='du -ch'
+alias dust='du -ah | sort -h'
+alias jupyter='jupyter lab'
+
+
+# Summit 2026 Lightning Talk Demo Environment
+export RHEL10_ISO="/storage/images/rhel-10.1-x86_64-dvd.iso"
+export STORAGE_PATH="/storage/images"
+export VIRT_NETWORK="bridge1"

@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Abraham Snell
+  description: Deploy RHEL 10 ARM64 EC2 instances
+  company: Red Hat
+  license: Apache-2.0
+  min_ansible_version: "2.15"
+  platforms:
+    - name: EL
+      versions:
+        - "10"
+  galaxy_tags:
+    - aws
+    - ec2
+    - rhel
+    - rhel10
+    - arm64
+
+dependencies: []

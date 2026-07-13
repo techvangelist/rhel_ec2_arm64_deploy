@@ -1,0 +1,46 @@
+# Ansible
+*.retry
+.ansible/
+ansible.log
+/tmp/ansible_facts/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Secrets and credentials
+*.pem
+*.key
+*_rsa
+*_rsa.pub
+*.secret
+secrets.yml
+vault.yml
+
+# Inventory files with sensitive data
+inventory/production
+inventory/staging
+
+# Collections downloaded locally
+collections/
+
+# Build artifacts
+context/

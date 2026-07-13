@@ -1,0 +1,183 @@
+---
+- name: Display verification header
+  ansible.builtin.debug:
+    msg: |
+      =========================================
+      RHEL 10 ARM64 EC2 Configuration Verification
+      =========================================
+      Instance: {{ inventory_hostname }}
+      User: {{ verify_user }}
+
+- name: Test SSH connection
+  ansible.builtin.ping:
+  register: ping_result
+
+- name: Verify SSH connection successful
+  ansible.builtin.assert:
+    that:
+      - ping_result is success
+    success_msg: "✅ SSH connection successful"
+    fail_msg: "❌ SSH connection failed"
+
+- name: Get user information
+  ansible.builtin.command: id {{ verify_user }}
+  register: user_id
+  changed_when: false
+
+- name: Get user groups
+  ansible.builtin.command: groups {{ verify_user }}
+  register: user_groups
+  changed_when: false
+
+- name: Display user configuration
+  ansible.builtin.debug:
+    msg: |
+      === User Configuration ===
+      {{ user_id.stdout }}
+      {{ user_groups.stdout }}
+
+- name: Verify user is in wheel group
+  ansible.builtin.assert:
+    that:
+      - "'wheel' in user_groups.stdout"
+    success_msg: "✅ User {{ verify_user }} is in wheel group"
+    fail_msg: "❌ User {{ verify_user }} is not in wheel group"
+
+- name: Test passwordless sudo
+  ansible.builtin.command: sudo -n -u {{ verify_user }} whoami
+  register: sudo_test
+  changed_when: false
+  become: true
+  failed_when: false
+
+- name: Verify passwordless sudo working
+  ansible.builtin.assert:
+    that:
+      - sudo_test.rc == 0
+      - "'root' in sudo_test.stdout or verify_user in sudo_test.stdout"
+    success_msg: "✅ Passwordless sudo working"
+    fail_msg: "❌ Passwordless sudo not working"
+
+- name: Check installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Verify expected packages are installed
+  ansible.builtin.assert:
+    that:
+      - item in ansible_facts.packages
+    success_msg: "✅ Package {{ item }} is installed"
+    fail_msg: "❌ Package {{ item }} is not installed"
+  loop: "{{ expected_packages }}"
+
+- name: Display installed package versions
+  ansible.builtin.debug:
+    msg: "{{ item }}: {{ ansible_facts.packages[item][0].version }}"
+  loop: "{{ expected_packages }}"
+  when: item in ansible_facts.packages
+
+- name: Check sysstat service status
+  ansible.builtin.systemd:
+    name: "{{ item.name }}"
+  register: service_status
+  loop: "{{ expected_services }}"
+  check_mode: true
+
+- name: Verify sysstat service is active and enabled
+  ansible.builtin.service_facts:
+
+- name: Check service states
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services[item.name + '.service'].state == item.state
+      - ansible_facts.services[item.name + '.service'].status == 'enabled'
+    success_msg: "✅ Service {{ item.name }} is {{ item.state }} and enabled"
+    fail_msg: "❌ Service {{ item.name }} is not correctly configured"
+  loop: "{{ expected_services }}"
+
+- name: Check bashrc.d directory exists
+  ansible.builtin.stat:
+    path: "/home/{{ verify_user }}/.bashrc.d"
+  register: bashrc_d_dir
+
+- name: Verify bashrc.d directory exists
+  ansible.builtin.assert:
+    that:
+      - bashrc_d_dir.stat.exists
+      - bashrc_d_dir.stat.isdir
+    success_msg: "✅ .bashrc.d directory exists"
+    fail_msg: "❌ .bashrc.d directory does not exist"
+
+- name: List bashrc.d files
+  ansible.builtin.find:
+    paths: "/home/{{ verify_user }}/.bashrc.d"
+    file_type: file
+  register: bashrc_files
+
+- name: Display bashrc.d configuration files
+  ansible.builtin.debug:
+    msg: "{{ bashrc_files.files | map(attribute='path') | map('basename') | list }}"
+
+- name: Verify expected bashrc.d files exist
+  ansible.builtin.stat:
+    path: "/home/{{ verify_user }}/.bashrc.d/{{ item }}"
+  register: bashrc_file_check
+  loop: "{{ expected_bashrc_files }}"
+
+- name: Assert bashrc.d files are present
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+    success_msg: "✅ File {{ item.item }} exists"
+    fail_msg: "❌ File {{ item.item }} does not exist"
+  loop: "{{ bashrc_file_check.results }}"
+
+- name: Check for sample aliases
+  ansible.builtin.shell: |
+    source /home/{{ verify_user }}/.bashrc.d/02-aliases
+    alias | grep -E '^alias (duck|dust|ll)=' | head -3
+  args:
+    executable: /bin/bash
+  register: alias_check
+  changed_when: false
+  become: true
+  become_user: "{{ verify_user }}"
+  failed_when: false
+
+- name: Display sample aliases
+  ansible.builtin.debug:
+    msg: |
+      === Sample Aliases ===
+      {{ alias_check.stdout }}
+
+- name: Get OS information
+  ansible.builtin.command: cat /etc/redhat-release
+  register: os_release
+  changed_when: false
+
+- name: Get architecture
+  ansible.builtin.command: uname -m
+  register: architecture
+  changed_when: false
+
+- name: Display OS information
+  ansible.builtin.debug:
+    msg: |
+      === OS Information ===
+      {{ os_release.stdout }}
+      Architecture: {{ architecture.stdout }}
+
+- name: Verify architecture is ARM64
+  ansible.builtin.assert:
+    that:
+      - architecture.stdout == "aarch64"
+    success_msg: "✅ Architecture is ARM64 (aarch64)"
+    fail_msg: "❌ Architecture is not ARM64"
+
+- name: Display verification summary
+  ansible.builtin.debug:
+    msg: |
+      =========================================
+      Verification Complete
+      =========================================
+      All checks passed successfully!

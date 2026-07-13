@@ -1,0 +1,21 @@
+---
+# User to verify
+verify_user: asnell
+
+# Expected packages
+expected_packages:
+  - git
+  - tmux
+  - sysstat
+
+# Expected bashrc.d files
+expected_bashrc_files:
+  - 02-aliases
+  - 03-bash_history
+  - 05-shell_env
+
+# Expected services
+expected_services:
+  - name: sysstat
+    state: active
+    enabled: true

@@ -1,0 +1,33 @@
+---
+# AWS Configuration
+aws_region: "{{ lookup('env', 'AWS_REGION') | default('us-east-2', true) }}"
+aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+
+# EC2 Instance Configuration
+ec2_instance_type: t4g.xlarge
+ec2_key_name: "{{ lookup('env', 'AWS_KEYPAIR_NAME') }}"
+ec2_security_group_ids: "{{ lookup('env', 'AWS_DEFAULT_SG_ID') }}"
+ec2_subnet_id: "{{ lookup('env', 'AWS_DEFAULT_SUBNET_ID') | default(omit, true) }}"
+
+# AMI Configuration
+ami_owner: "309956199498"  # Red Hat AWS account
+ami_name_filter: "RHEL-10*arm64*"
+ami_architecture: arm64
+
+# Instance Tags
+ec2_instance_name: rhel10-spark-build
+ec2_instance_tags:
+  Name: "{{ ec2_instance_name }}"
+  OS: RHEL10
+  Architecture: ARM64
+  ManagedBy: Ansible
+
+# Storage Configuration
+ec2_root_volume_size: 100
+ec2_root_volume_type: gp3
+ec2_root_delete_on_termination: true
+
+# Instance wait configuration
+ec2_wait: true
+ec2_wait_timeout: 600

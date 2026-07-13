@@ -1,0 +1,21 @@
+---
+- name: Configure RHEL 10 ARM64 EC2 Instance
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: rhel10_ec2_configure
+
+  post_tasks:
+    - name: Display configuration summary
+      ansible.builtin.debug:
+        msg: |
+          ========================================
+          Instance Configuration Complete
+          ========================================
+          Host: {{ inventory_hostname }}
+          Admin user created: {{ admin_user }}
+          Packages installed: {{ baseline_packages | join(', ') }}
+
+          You can now SSH as: {{ admin_user }}@{{ inventory_hostname }}
