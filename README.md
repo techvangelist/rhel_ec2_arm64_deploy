@@ -1,7 +1,7 @@
 # RHEL 10 ARM64 EC2 Ansible Automation
 
-[![Build and Push EE](https://github.com/<your-org>/<your-repo>/actions/workflows/build-and-push-ee.yml/badge.svg)](https://github.com/<your-org>/<your-repo>/actions/workflows/build-and-push-ee.yml)
-[![Test](https://github.com/<your-org>/<your-repo>/actions/workflows/test.yml/badge.svg)](https://github.com/<your-org>/<your-repo>/actions/workflows/test.yml)
+[![Build and Push EE](https://github.com/techvangelist/rhel_ec2_arm64_deploy/actions/workflows/build-and-push-ee.yml/badge.svg)](https://github.com/techvangelist/rhel_ec2_arm64_deploy/actions/workflows/build-and-push-ee.yml)
+[![Test](https://github.com/techvangelist/rhel_ec2_arm64_deploy/actions/workflows/test.yml/badge.svg)](https://github.com/techvangelist/rhel_ec2_arm64_deploy/actions/workflows/test.yml)
 
 Ansible roles and playbooks for deploying, configuring, and verifying RHEL 10 ARM64 EC2 instances on AWS.
 
